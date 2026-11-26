@@ -25,6 +25,37 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function summarizePlantTypes(items) {
+  const groups = new Map();
+  items.forEach((plant) => {
+    const current = groups.get(plant.type) ?? { type: plant.type, count: 0, moistureTotal: 0, attentionCount: 0 };
+    current.count += 1;
+    current.moistureTotal += plant.moisture;
+    if (plant.health === "Needs attention") current.attentionCount += 1;
+    groups.set(plant.type, current);
+  });
+  return [...groups.values()]
+    .map(({ moistureTotal, ...group }) => ({ ...group, averageMoisture: Math.round(moistureTotal / group.count) }))
+    .sort((a, b) => a.type.localeCompare(b.type));
+}
+
+function typeInsightCard(group) {
+  const type = escapeHtml(group.type);
+  const attentionText = group.attentionCount ? `${group.attentionCount} need attention` : "All looking steady";
+  return `<article class="type-insight">
+    <h3>${type}</h3>
+    <p>${group.count} ${group.count === 1 ? "plant" : "plants"} · ${attentionText}</p>
+    <div class="moisture-track" role="progressbar" aria-label="${type} average moisture" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${group.averageMoisture}">
+      <span class="moisture-fill" style="width: ${group.averageMoisture}%"></span>
+    </div>
+    <span class="moisture-value">${group.averageMoisture}% average</span>
+  </article>`;
+}
+
+function renderTypeInsights(items, documentRef) {
+  documentRef.querySelector("#type-insights").innerHTML = summarizePlantTypes(items).map(typeInsightCard).join("");
+}
+
 function plantRow(plant) {
   return `<tr>
     <td class="plant-name">${escapeHtml(plant.name)}</td>
@@ -45,9 +76,12 @@ function renderDashboard(items, documentRef) {
 }
 
 if (typeof document !== "undefined") {
-  document.addEventListener("DOMContentLoaded", () => renderDashboard(plants, document));
+  document.addEventListener("DOMContentLoaded", () => {
+    renderDashboard(plants, document);
+    renderTypeInsights(plants, document);
+  });
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { plants, calculateSummary, escapeHtml, plantRow };
+  module.exports = { plants, calculateSummary, escapeHtml, summarizePlantTypes, typeInsightCard, plantRow };
 }

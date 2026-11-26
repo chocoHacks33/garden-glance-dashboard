@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { plants, calculateSummary, escapeHtml, plantRow } = require("../app.js");
+const { plants, calculateSummary, escapeHtml, csvCell, createPlantCsv, plantRow } = require("../app.js");
 
 test("starter data contains distinct plant records", () => {
   assert.equal(plants.length, 6);
@@ -35,4 +35,17 @@ test("plant rows escape user-facing text", () => {
 
 test("escapeHtml handles all HTML-sensitive characters", () => {
   assert.equal(escapeHtml(`<>&"'`), "&lt;&gt;&amp;&quot;&#039;");
+});
+
+test("CSV cells escape quotes and neutralize spreadsheet formulas", () => {
+  assert.equal(csvCell('Fern "Junior"'), '"Fern ""Junior"""');
+  assert.equal(csvCell("=HYPERLINK(\"bad\")"), '"\'=HYPERLINK(""bad"")"');
+  assert.equal(csvCell("  +SUM(1,2)"), '"\'  +SUM(1,2)"');
+});
+
+test("plant CSV includes a header and every plant", () => {
+  const csv = createPlantCsv(plants);
+  assert.match(csv, /^"Plant","Type","Location","Moisture","Health","Last watered"\r\n/);
+  assert.equal(csv.trim().split("\r\n").length, plants.length + 1);
+  assert.match(csv, /"Monstera","Tropical","Living room","62"/);
 });

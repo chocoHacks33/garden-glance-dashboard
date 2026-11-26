@@ -25,6 +25,29 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function csvCell(value) {
+  let safeValue = String(value ?? "");
+  if (/^[=+\-@]/.test(safeValue.trimStart())) safeValue = `'${safeValue}`;
+  return `"${safeValue.replaceAll('"', '""')}"`;
+}
+
+function createPlantCsv(items) {
+  const rows = [
+    ["Plant", "Type", "Location", "Moisture", "Health", "Last watered"],
+    ...items.map((plant) => [plant.name, plant.type, plant.location, plant.moisture, plant.health, plant.lastWatered])
+  ];
+  return `${rows.map((row) => row.map(csvCell).join(",")).join("\r\n")}\r\n`;
+}
+
+function downloadPlantCsv(items, documentRef) {
+  const url = URL.createObjectURL(new Blob([createPlantCsv(items)], { type: "text/csv;charset=utf-8" }));
+  const link = documentRef.createElement("a");
+  link.href = url;
+  link.download = "garden-glance-plants.csv";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 function plantRow(plant) {
   return `<tr>
     <td class="plant-name">${escapeHtml(plant.name)}</td>
@@ -45,9 +68,12 @@ function renderDashboard(items, documentRef) {
 }
 
 if (typeof document !== "undefined") {
-  document.addEventListener("DOMContentLoaded", () => renderDashboard(plants, document));
+  document.addEventListener("DOMContentLoaded", () => {
+    renderDashboard(plants, document);
+    document.querySelector("#export-csv").addEventListener("click", () => downloadPlantCsv(plants, document));
+  });
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { plants, calculateSummary, escapeHtml, plantRow };
+  module.exports = { plants, calculateSummary, escapeHtml, csvCell, createPlantCsv, plantRow };
 }

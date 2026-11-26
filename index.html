@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Review houseplant health and moisture at a glance.">
+    <title>Garden Glance Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">Indoor garden</p>
+        <h1>Garden Glance</h1>
+        <p class="subtitle">A calm view of every plant that needs your attention.</p>
+      </div>
+      <span class="status-pill">Local demo data</span>
+    </header>
+
+    <main>
+      <section class="summary-grid" aria-label="Garden summary">
+        <article class="summary-card">
+          <span>Plants tracked</span>
+          <strong id="plant-count">0</strong>
+        </article>
+        <article class="summary-card">
+          <span>Average moisture</span>
+          <strong id="average-moisture">0%</strong>
+        </article>
+        <article class="summary-card attention">
+          <span>Need attention</span>
+          <strong id="attention-count">0</strong>
+        </article>
+      </section>
+
+      <section class="panel" aria-labelledby="collection-heading">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Collection</p>
+            <h2 id="collection-heading">Plant overview</h2>
+          </div>
+          <p id="result-count" class="result-count"></p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Plant</th>
+                <th scope="col">Type</th>
+                <th scope="col">Location</th>
+                <th scope="col">Moisture</th>
+                <th scope="col">Health</th>
+              </tr>
+            </thead>
+            <tbody id="plant-rows"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer>Garden Glance keeps its sample data in your browser.</footer>
+  </body>
+</html>

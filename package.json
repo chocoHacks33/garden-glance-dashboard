@@ -1,0 +1,10 @@
+{
+  "name": "garden-glance-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A dependency-free plant-care dashboard",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check app.js && node --test"
+  }
+}

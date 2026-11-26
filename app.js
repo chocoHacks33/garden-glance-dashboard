@@ -25,6 +25,14 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function getLocations(items) {
+  return [...new Set(items.map((plant) => plant.location))].sort((a, b) => a.localeCompare(b));
+}
+
+function filterPlantsByLocation(items, location) {
+  return location === "all" ? [...items] : items.filter((plant) => plant.location === location);
+}
+
 function plantRow(plant) {
   return `<tr>
     <td class="plant-name">${escapeHtml(plant.name)}</td>
@@ -45,9 +53,21 @@ function renderDashboard(items, documentRef) {
 }
 
 if (typeof document !== "undefined") {
-  document.addEventListener("DOMContentLoaded", () => renderDashboard(plants, document));
+  document.addEventListener("DOMContentLoaded", () => {
+    const filter = document.querySelector("#location-filter");
+    getLocations(plants).forEach((location) => {
+      const option = document.createElement("option");
+      option.value = location;
+      option.textContent = location;
+      filter.append(option);
+    });
+    filter.addEventListener("change", () => {
+      renderDashboard(filterPlantsByLocation(plants, filter.value), document);
+    });
+    renderDashboard(plants, document);
+  });
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { plants, calculateSummary, escapeHtml, plantRow };
+  module.exports = { plants, calculateSummary, escapeHtml, getLocations, filterPlantsByLocation, plantRow };
 }

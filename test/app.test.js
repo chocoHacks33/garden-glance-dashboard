@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { plants, calculateSummary, escapeHtml, plantRow } = require("../app.js");
+const { plants, calculateSummary, escapeHtml, normalizeMoistureThreshold, readMoistureThreshold, getDryPlants, plantRow } = require("../app.js");
 
 test("starter data contains distinct plant records", () => {
   assert.equal(plants.length, 6);
@@ -35,4 +35,19 @@ test("plant rows escape user-facing text", () => {
 
 test("escapeHtml handles all HTML-sensitive characters", () => {
   assert.equal(escapeHtml(`<>&"'`), "&lt;&gt;&amp;&quot;&#039;");
+});
+
+test("moisture thresholds are rounded and constrained", () => {
+  assert.equal(normalizeMoistureThreshold(33), 35);
+  assert.equal(normalizeMoistureThreshold(200), 80);
+  assert.equal(normalizeMoistureThreshold("invalid", 40), 40);
+});
+
+test("stored moisture threshold tolerates unavailable storage", () => {
+  assert.equal(readMoistureThreshold({ getItem: () => "42" }), 40);
+  assert.equal(readMoistureThreshold({ getItem: () => { throw new Error("blocked"); } }), 35);
+});
+
+test("dry plants include threshold matches and sort driest first", () => {
+  assert.deepEqual(getDryPlants(plants, 31).map((plant) => plant.name), ["Aloe vera", "Basil"]);
 });

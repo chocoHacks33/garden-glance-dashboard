@@ -34,6 +34,19 @@
         </article>
       </section>
 
+      <section class="panel alert-panel" aria-labelledby="moisture-heading">
+        <div>
+          <p class="eyebrow">Custom care signal</p>
+          <h2 id="moisture-heading">Low-moisture alerts</h2>
+          <p class="alert-copy">Flag plants at or below your preferred moisture threshold.</p>
+        </div>
+        <label class="threshold-control" for="moisture-threshold">
+          Threshold: <strong id="threshold-value">35%</strong>
+          <input id="moisture-threshold" type="range" min="10" max="80" step="5" value="35">
+        </label>
+        <ul id="moisture-alerts" class="moisture-alerts" aria-live="polite"></ul>
+      </section>
+
       <section class="panel" aria-labelledby="collection-heading">
         <div class="panel-heading">
           <div>

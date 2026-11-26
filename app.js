@@ -25,6 +25,37 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function toUtcDay(dateValue) {
+  const [year, month, day] = dateValue.split("-").map(Number);
+  return Date.UTC(year, month - 1, day);
+}
+
+function wateringPlan(items, today = new Date(), horizonDays = 7) {
+  const start = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  const end = start + horizonDays * 86_400_000;
+  return items
+    .map((plant) => ({
+      name: plant.name,
+      dueAt: toUtcDay(plant.lastWatered) + plant.wateringIntervalDays * 86_400_000
+    }))
+    .filter((entry) => entry.dueAt <= end)
+    .sort((a, b) => a.dueAt - b.dueAt || a.name.localeCompare(b.name));
+}
+
+function formatCareDate(timestamp, today = new Date()) {
+  const start = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  if (timestamp < start) return "Overdue";
+  if (timestamp === start) return "Today";
+  return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", timeZone: "UTC" }).format(timestamp);
+}
+
+function renderCarePlan(items, documentRef, today = new Date()) {
+  const plan = wateringPlan(items, today);
+  documentRef.querySelector("#care-plan").innerHTML = plan.length
+    ? plan.map((entry) => `<li><strong>${escapeHtml(entry.name)}</strong><time datetime="${new Date(entry.dueAt).toISOString().slice(0, 10)}">${formatCareDate(entry.dueAt, today)}</time></li>`).join("")
+    : '<li class="empty-state">Nothing is due in the next seven days.</li>';
+}
+
 function plantRow(plant) {
   return `<tr>
     <td class="plant-name">${escapeHtml(plant.name)}</td>
@@ -45,9 +76,12 @@ function renderDashboard(items, documentRef) {
 }
 
 if (typeof document !== "undefined") {
-  document.addEventListener("DOMContentLoaded", () => renderDashboard(plants, document));
+  document.addEventListener("DOMContentLoaded", () => {
+    renderDashboard(plants, document);
+    renderCarePlan(plants, document);
+  });
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { plants, calculateSummary, escapeHtml, plantRow };
+  module.exports = { plants, calculateSummary, escapeHtml, toUtcDay, wateringPlan, formatCareDate, plantRow };
 }

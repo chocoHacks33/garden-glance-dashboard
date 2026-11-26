@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { plants, calculateSummary, escapeHtml, plantRow } = require("../app.js");
+const { plants, calculateSummary, escapeHtml, toUtcDay, wateringPlan, formatCareDate, plantRow } = require("../app.js");
 
 test("starter data contains distinct plant records", () => {
   assert.equal(plants.length, 6);
@@ -35,4 +35,21 @@ test("plant rows escape user-facing text", () => {
 
 test("escapeHtml handles all HTML-sensitive characters", () => {
   assert.equal(escapeHtml(`<>&"'`), "&lt;&gt;&amp;&quot;&#039;");
+});
+
+test("watering plan is timezone-safe, inclusive, and sorted", () => {
+  const sample = [
+    { name: "Later", lastWatered: "2026-11-25", wateringIntervalDays: 3 },
+    { name: "Today", lastWatered: "2026-11-24", wateringIntervalDays: 2 },
+    { name: "Outside", lastWatered: "2026-11-25", wateringIntervalDays: 9 }
+  ];
+  const result = wateringPlan(sample, new Date(2026, 10, 26), 7);
+  assert.deepEqual(result.map((entry) => entry.name), ["Today", "Later"]);
+  assert.equal(result[0].dueAt, toUtcDay("2026-11-26"));
+});
+
+test("care dates distinguish overdue and today", () => {
+  const today = new Date(2026, 10, 26);
+  assert.equal(formatCareDate(toUtcDay("2026-11-25"), today), "Overdue");
+  assert.equal(formatCareDate(toUtcDay("2026-11-26"), today), "Today");
 });

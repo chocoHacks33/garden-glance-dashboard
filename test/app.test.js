@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { plants, calculateSummary, escapeHtml, plantRow } = require("../app.js");
+const { plants, calculateSummary, escapeHtml, getLocations, filterPlantsByLocation, plantRow } = require("../app.js");
 
 test("starter data contains distinct plant records", () => {
   assert.equal(plants.length, 6);
@@ -35,4 +35,13 @@ test("plant rows escape user-facing text", () => {
 
 test("escapeHtml handles all HTML-sensitive characters", () => {
   assert.equal(escapeHtml(`<>&"'`), "&lt;&gt;&amp;&quot;&#039;");
+});
+
+test("locations are unique and alphabetized", () => {
+  assert.deepEqual(getLocations(plants), ["Balcony", "Bedroom", "Kitchen", "Living room", "Study"]);
+});
+
+test("location filtering retains matching plants and supports all", () => {
+  assert.deepEqual(filterPlantsByLocation(plants, "Kitchen").map((plant) => plant.name), ["Basil", "Mint"]);
+  assert.equal(filterPlantsByLocation(plants, "all").length, plants.length);
 });

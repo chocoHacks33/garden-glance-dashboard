@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { plants, calculateSummary, escapeHtml, plantRow } = require("../app.js");
+const { plants, calculateSummary, escapeHtml, summarizePlantTypes, typeInsightCard, plantRow } = require("../app.js");
 
 test("starter data contains distinct plant records", () => {
   assert.equal(plants.length, 6);
@@ -35,4 +35,19 @@ test("plant rows escape user-facing text", () => {
 
 test("escapeHtml handles all HTML-sensitive characters", () => {
   assert.equal(escapeHtml(`<>&"'`), "&lt;&gt;&amp;&quot;&#039;");
+});
+
+test("plant type insights aggregate moisture and attention status", () => {
+  const insights = summarizePlantTypes(plants);
+  assert.deepEqual(insights.map((group) => group.type), ["Herb", "Succulent", "Tropical"]);
+  assert.deepEqual(insights.find((group) => group.type === "Herb"), {
+    type: "Herb", count: 2, attentionCount: 1, averageMoisture: 45
+  });
+});
+
+test("type insight cards expose an accessible progressbar", () => {
+  const card = typeInsightCard({ type: "Herb & spice", count: 2, attentionCount: 0, averageMoisture: 64 });
+  assert.match(card, /role="progressbar"/);
+  assert.match(card, /aria-valuenow="64"/);
+  assert.match(card, /Herb &amp; spice average moisture/);
 });

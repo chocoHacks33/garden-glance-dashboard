@@ -25,6 +25,32 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function normalizeMoistureThreshold(value, fallback = 35) {
+  if (value === null || value === "") return fallback;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? Math.min(80, Math.max(10, Math.round(parsed / 5) * 5)) : fallback;
+}
+
+function readMoistureThreshold(storage, fallback = 35) {
+  try {
+    return normalizeMoistureThreshold(storage.getItem("garden-glance-moisture-threshold"), fallback);
+  } catch {
+    return fallback;
+  }
+}
+
+function getDryPlants(items, threshold) {
+  return items.filter((plant) => plant.moisture <= threshold).sort((a, b) => a.moisture - b.moisture || a.name.localeCompare(b.name));
+}
+
+function renderMoistureAlerts(items, threshold, documentRef) {
+  const dryPlants = getDryPlants(items, threshold);
+  documentRef.querySelector("#threshold-value").textContent = `${threshold}%`;
+  documentRef.querySelector("#moisture-alerts").innerHTML = dryPlants.length
+    ? dryPlants.map((plant) => `<li>${escapeHtml(plant.name)} · ${plant.moisture}%</li>`).join("")
+    : '<li class="all-clear">All plants are above the threshold.</li>';
+}
+
 function plantRow(plant) {
   return `<tr>
     <td class="plant-name">${escapeHtml(plant.name)}</td>
@@ -45,9 +71,20 @@ function renderDashboard(items, documentRef) {
 }
 
 if (typeof document !== "undefined") {
-  document.addEventListener("DOMContentLoaded", () => renderDashboard(plants, document));
+  document.addEventListener("DOMContentLoaded", () => {
+    const input = document.querySelector("#moisture-threshold");
+    const threshold = readMoistureThreshold(window.localStorage);
+    input.value = threshold;
+    renderDashboard(plants, document);
+    renderMoistureAlerts(plants, threshold, document);
+    input.addEventListener("input", () => {
+      const nextThreshold = normalizeMoistureThreshold(input.value);
+      try { window.localStorage.setItem("garden-glance-moisture-threshold", nextThreshold); } catch { /* Continue without persistence. */ }
+      renderMoistureAlerts(plants, nextThreshold, document);
+    });
+  });
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { plants, calculateSummary, escapeHtml, plantRow };
+  module.exports = { plants, calculateSummary, escapeHtml, normalizeMoistureThreshold, readMoistureThreshold, getDryPlants, plantRow };
 }

@@ -33,6 +33,13 @@ test("plant rows escape user-facing text", () => {
   assert.doesNotMatch(row, /<Fern>/);
 });
 
+test("plant rows include labels for the mobile card layout", () => {
+  const row = plantRow(plants[0]);
+  for (const label of ["Plant", "Type", "Location", "Moisture", "Health"]) {
+    assert.match(row, new RegExp(`data-label="${label}"`));
+  }
+});
+
 test("escapeHtml handles all HTML-sensitive characters", () => {
   assert.equal(escapeHtml(`<>&"'`), "&lt;&gt;&amp;&quot;&#039;");
 });

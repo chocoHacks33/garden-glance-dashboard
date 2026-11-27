@@ -25,6 +25,28 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function plantSummary(plant) {
+  return `${plant.name} — ${plant.type} in ${plant.location}; ${plant.moisture}% moisture; health: ${plant.health}.`;
+}
+
+async function copyText(text, navigatorRef, documentRef) {
+  if (navigatorRef?.clipboard?.writeText) {
+    await navigatorRef.clipboard.writeText(text);
+    return;
+  }
+
+  const helper = documentRef.createElement("textarea");
+  helper.value = text;
+  helper.setAttribute("readonly", "");
+  helper.style.position = "fixed";
+  helper.style.opacity = "0";
+  documentRef.body.append(helper);
+  helper.select();
+  const copied = documentRef.execCommand("copy");
+  helper.remove();
+  if (!copied) throw new Error("Copy command was unavailable");
+}
+
 function plantRow(plant) {
   return `<tr>
     <td class="plant-name">${escapeHtml(plant.name)}</td>
@@ -32,6 +54,7 @@ function plantRow(plant) {
     <td>${escapeHtml(plant.location)}</td>
     <td>${plant.moisture}%</td>
     <td><span class="health-badge" data-health="${escapeHtml(plant.health)}">${escapeHtml(plant.health)}</span></td>
+    <td><button class="copy-button" type="button" data-copy-plant="${escapeHtml(plant.id)}" aria-label="Copy care summary for ${escapeHtml(plant.name)}">Copy summary</button></td>
   </tr>`;
 }
 
@@ -45,9 +68,28 @@ function renderDashboard(items, documentRef) {
 }
 
 if (typeof document !== "undefined") {
-  document.addEventListener("DOMContentLoaded", () => renderDashboard(plants, document));
+  document.addEventListener("DOMContentLoaded", () => {
+    const rows = document.querySelector("#plant-rows");
+    const copyStatus = document.querySelector("#copy-status");
+
+    renderDashboard(plants, document);
+    rows.addEventListener("click", async (event) => {
+      const button = event.target.closest("[data-copy-plant]");
+      if (!button) return;
+
+      const plant = plants.find((item) => item.id === Number(button.dataset.copyPlant));
+      if (!plant) return;
+
+      try {
+        await copyText(plantSummary(plant), navigator, document);
+        copyStatus.textContent = `${plant.name} summary copied.`;
+      } catch {
+        copyStatus.textContent = "Could not copy the plant summary in this browser.";
+      }
+    });
+  });
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { plants, calculateSummary, escapeHtml, plantRow };
+  module.exports = { plants, calculateSummary, escapeHtml, plantSummary, copyText, plantRow };
 }

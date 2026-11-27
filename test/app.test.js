@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { plants, calculateSummary, escapeHtml, plantRow } = require("../app.js");
+const { plants, calculateSummary, escapeHtml, plantSummary, copyText, plantRow } = require("../app.js");
 
 test("starter data contains distinct plant records", () => {
   assert.equal(plants.length, 6);
@@ -35,4 +35,23 @@ test("plant rows escape user-facing text", () => {
 
 test("escapeHtml handles all HTML-sensitive characters", () => {
   assert.equal(escapeHtml(`<>&"'`), "&lt;&gt;&amp;&quot;&#039;");
+});
+
+test("plant summaries include the useful care details", () => {
+  assert.equal(
+    plantSummary(plants[0]),
+    "Monstera — Tropical in Living room; 62% moisture; health: Thriving."
+  );
+});
+
+test("copy text uses the Clipboard API when available", async () => {
+  const copied = [];
+  await copyText("care summary", { clipboard: { writeText: async (text) => copied.push(text) } });
+  assert.deepEqual(copied, ["care summary"]);
+});
+
+test("plant rows expose a specifically labelled copy action", () => {
+  const row = plantRow(plants[0]);
+  assert.match(row, /data-copy-plant="1"/);
+  assert.match(row, /aria-label="Copy care summary for Monstera"/);
 });

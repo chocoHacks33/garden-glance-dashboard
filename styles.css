@@ -68,6 +68,10 @@ tbody tr:last-child td { border-bottom: 0; }
 .plant-name { font-weight: 750; }
 .health-badge { display: inline-block; padding: 5px 9px; border-radius: 999px; background: var(--mint); color: var(--forest); font-size: .8rem; font-weight: 750; }
 .health-badge[data-health="Needs attention"] { background: #fae5d8; color: var(--warning); }
+.copy-button { padding: 7px 10px; border: 1px solid var(--forest); border-radius: 8px; background: transparent; color: var(--forest); font: inherit; font-size: .78rem; font-weight: 800; white-space: nowrap; cursor: pointer; }
+.copy-button:hover { background: var(--mint); }
+.copy-button:focus-visible { outline: 3px solid rgb(36 92 69 / 28%); outline-offset: 2px; }
+.copy-status { min-height: 1.3em; margin: 14px 0 0; color: var(--forest); font-size: .85rem; font-weight: 700; text-align: right; }
 footer { padding: 24px 0 40px; color: var(--muted); font-size: .85rem; text-align: center; }
 
 @media (max-width: 700px) {

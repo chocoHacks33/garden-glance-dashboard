@@ -27,11 +27,11 @@ function escapeHtml(value) {
 
 function plantRow(plant) {
   return `<tr>
-    <td class="plant-name">${escapeHtml(plant.name)}</td>
-    <td>${escapeHtml(plant.type)}</td>
-    <td>${escapeHtml(plant.location)}</td>
-    <td>${plant.moisture}%</td>
-    <td><span class="health-badge" data-health="${escapeHtml(plant.health)}">${escapeHtml(plant.health)}</span></td>
+    <td class="plant-name" data-label="Plant">${escapeHtml(plant.name)}</td>
+    <td data-label="Type">${escapeHtml(plant.type)}</td>
+    <td data-label="Location">${escapeHtml(plant.location)}</td>
+    <td data-label="Moisture">${plant.moisture}%</td>
+    <td data-label="Health"><span class="health-badge" data-health="${escapeHtml(plant.health)}">${escapeHtml(plant.health)}</span></td>
   </tr>`;
 }
 

@@ -60,6 +60,10 @@ h2 { margin-bottom: 0; }
 .panel { padding: 24px; }
 .panel-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .result-count { margin-bottom: 0; color: var(--muted); }
+.panel-heading-actions { display: flex; align-items: center; gap: 12px; }
+.secondary-button { padding: 9px 12px; border: 1px solid var(--forest); border-radius: 9px; background: transparent; color: var(--forest); font: inherit; font-size: .85rem; font-weight: 800; cursor: pointer; }
+.secondary-button:hover { background: var(--mint); }
+.secondary-button:focus-visible { outline: 3px solid rgb(36 92 69 / 28%); outline-offset: 2px; }
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; }
 th, td { padding: 14px 12px; border-bottom: 1px solid #e2eae3; text-align: left; }
@@ -75,4 +79,27 @@ footer { padding: 24px 0 40px; color: var(--muted); font-size: .85rem; text-alig
   .summary-grid { grid-template-columns: 1fr; }
   .panel { padding: 18px 14px; }
   th, td { padding-inline: 9px; }
+}
+
+@media print {
+  @page { margin: 14mm; }
+
+  :root { color: #111; background: #fff; }
+  body { min-height: auto; background: #fff; font-size: 10pt; }
+  .page-header, main, footer { width: 100%; }
+  .page-header { padding: 0 0 8mm; }
+  .page-header h1 { font-size: 24pt; }
+  .status-pill, .secondary-button { display: none; }
+  .summary-grid { grid-template-columns: repeat(3, 1fr); gap: 5mm; margin-bottom: 6mm; }
+  .summary-card, .panel { border-color: #aaa; background: #fff; box-shadow: none; }
+  .summary-card { padding: 4mm; break-inside: avoid; }
+  .summary-card strong { font-size: 18pt; }
+  .panel { padding: 5mm; }
+  .panel-heading { margin-bottom: 4mm; }
+  .table-wrap { overflow: visible; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th, td { padding: 3mm 2.5mm; }
+  .health-badge { border: 1px solid #999; background: #fff !important; color: #111 !important; }
+  footer { padding: 6mm 0 0; }
 }

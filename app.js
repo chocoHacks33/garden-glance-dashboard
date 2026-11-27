@@ -44,10 +44,17 @@ function renderDashboard(items, documentRef) {
   documentRef.querySelector("#plant-rows").innerHTML = items.map(plantRow).join("");
 }
 
+function printDashboard(windowRef) {
+  windowRef.print();
+}
+
 if (typeof document !== "undefined") {
-  document.addEventListener("DOMContentLoaded", () => renderDashboard(plants, document));
+  document.addEventListener("DOMContentLoaded", () => {
+    renderDashboard(plants, document);
+    document.querySelector("#print-care-sheet").addEventListener("click", () => printDashboard(window));
+  });
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { plants, calculateSummary, escapeHtml, plantRow };
+  module.exports = { plants, calculateSummary, escapeHtml, plantRow, printDashboard };
 }

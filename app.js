@@ -25,6 +25,14 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function filterPlants(items, query) {
+  const normalizedQuery = String(query).trim().toLocaleLowerCase();
+  if (!normalizedQuery) return [...items];
+
+  return items.filter((plant) => [plant.name, plant.type, plant.location, plant.health]
+    .some((value) => String(value).toLocaleLowerCase().includes(normalizedQuery)));
+}
+
 function plantRow(plant) {
   return `<tr>
     <td class="plant-name">${escapeHtml(plant.name)}</td>
@@ -40,14 +48,22 @@ function renderDashboard(items, documentRef) {
   documentRef.querySelector("#plant-count").textContent = summary.plantCount;
   documentRef.querySelector("#average-moisture").textContent = `${summary.averageMoisture}%`;
   documentRef.querySelector("#attention-count").textContent = summary.attentionCount;
-  documentRef.querySelector("#result-count").textContent = `${items.length} plants`;
-  documentRef.querySelector("#plant-rows").innerHTML = items.map(plantRow).join("");
+  documentRef.querySelector("#result-count").textContent = `${items.length} ${items.length === 1 ? "plant" : "plants"}`;
+  documentRef.querySelector("#plant-rows").innerHTML = items.length
+    ? items.map(plantRow).join("")
+    : '<tr><td class="empty-state" colspan="5">No plants match that search.</td></tr>';
 }
 
 if (typeof document !== "undefined") {
-  document.addEventListener("DOMContentLoaded", () => renderDashboard(plants, document));
+  document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.querySelector("#plant-search");
+    const updateSearchResults = () => renderDashboard(filterPlants(plants, searchInput.value), document);
+
+    renderDashboard(plants, document);
+    searchInput.addEventListener("input", updateSearchResults);
+  });
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { plants, calculateSummary, escapeHtml, plantRow };
+  module.exports = { plants, calculateSummary, escapeHtml, filterPlants, plantRow };
 }

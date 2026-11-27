@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { plants, calculateSummary, escapeHtml, plantRow } = require("../app.js");
+const { plants, calculateSummary, escapeHtml, filterPlants, plantRow } = require("../app.js");
 
 test("starter data contains distinct plant records", () => {
   assert.equal(plants.length, 6);
@@ -35,4 +35,19 @@ test("plant rows escape user-facing text", () => {
 
 test("escapeHtml handles all HTML-sensitive characters", () => {
   assert.equal(escapeHtml(`<>&"'`), "&lt;&gt;&amp;&quot;&#039;");
+});
+
+test("plant search matches text fields case-insensitively", () => {
+  assert.deepEqual(filterPlants(plants, "KITCHEN").map((plant) => plant.name), ["Basil", "Mint"]);
+  assert.deepEqual(filterPlants(plants, "needs attention").map((plant) => plant.name), ["Basil", "Aloe vera"]);
+});
+
+test("blank plant searches return a copy of the full collection", () => {
+  const results = filterPlants(plants, "   ");
+  assert.deepEqual(results, plants);
+  assert.notEqual(results, plants);
+});
+
+test("plant search returns an empty collection when no fields match", () => {
+  assert.deepEqual(filterPlants(plants, "orchid"), []);
 });

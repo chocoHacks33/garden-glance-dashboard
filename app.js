@@ -25,6 +25,23 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function sortPlants(items, sortBy) {
+  const sorted = [...items];
+  const healthRank = { "Needs attention": 0, Stable: 1, Thriving: 2 };
+
+  switch (sortBy) {
+    case "moisture-low":
+      return sorted.sort((a, b) => a.moisture - b.moisture || a.name.localeCompare(b.name));
+    case "moisture-high":
+      return sorted.sort((a, b) => b.moisture - a.moisture || a.name.localeCompare(b.name));
+    case "health":
+      return sorted.sort((a, b) => (healthRank[a.health] ?? 99) - (healthRank[b.health] ?? 99) || a.name.localeCompare(b.name));
+    case "name":
+    default:
+      return sorted.sort((a, b) => a.name.localeCompare(b.name));
+  }
+}
+
 function plantRow(plant) {
   return `<tr>
     <td class="plant-name">${escapeHtml(plant.name)}</td>
@@ -45,9 +62,15 @@ function renderDashboard(items, documentRef) {
 }
 
 if (typeof document !== "undefined") {
-  document.addEventListener("DOMContentLoaded", () => renderDashboard(plants, document));
+  document.addEventListener("DOMContentLoaded", () => {
+    const sortSelect = document.querySelector("#plant-sort");
+    const updatePlantOrder = () => renderDashboard(sortPlants(plants, sortSelect.value), document);
+
+    updatePlantOrder();
+    sortSelect.addEventListener("change", updatePlantOrder);
+  });
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { plants, calculateSummary, escapeHtml, plantRow };
+  module.exports = { plants, calculateSummary, escapeHtml, sortPlants, plantRow };
 }

@@ -2,6 +2,8 @@
 
 Garden Glance is a lightweight, dependency-free dashboard for reviewing houseplant health, moisture, and care locations at a glance.
 
+The collection can be sorted by name, moisture, or health without changing the source data.
+
 ## Run locally
 
 Open `index.html` in a browser, or serve the folder with any static file server.

@@ -1,6 +1,6 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { plants, calculateSummary, escapeHtml, plantRow } = require("../app.js");
+const { plants, calculateSummary, escapeHtml, sortPlants, plantRow } = require("../app.js");
 
 test("starter data contains distinct plant records", () => {
   assert.equal(plants.length, 6);
@@ -35,4 +35,21 @@ test("plant rows escape user-facing text", () => {
 
 test("escapeHtml handles all HTML-sensitive characters", () => {
   assert.equal(escapeHtml(`<>&"'`), "&lt;&gt;&amp;&quot;&#039;");
+});
+
+test("plant sorting orders moisture in both directions", () => {
+  assert.deepEqual(sortPlants(plants, "moisture-low").map((plant) => plant.moisture), [27, 31, 38, 45, 58, 62]);
+  assert.deepEqual(sortPlants(plants, "moisture-high").map((plant) => plant.moisture), [62, 58, 45, 38, 31, 27]);
+});
+
+test("health sorting puts plants needing attention first", () => {
+  assert.deepEqual(sortPlants(plants, "health").slice(0, 2).map((plant) => plant.name), ["Aloe vera", "Basil"]);
+});
+
+test("plant sorting defaults to name and does not mutate the source", () => {
+  const source = [...plants];
+  assert.deepEqual(sortPlants(plants, "unknown").map((plant) => plant.name), [
+    "Aloe vera", "Basil", "Mint", "Monstera", "Peace lily", "Snake plant"
+  ]);
+  assert.deepEqual(plants, source);
 });
